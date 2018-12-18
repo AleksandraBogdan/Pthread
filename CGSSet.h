@@ -15,13 +15,15 @@ private:
   class Node
   {
   public:
-    Node(T init_value): item(init_value), key(std::hash<T>()(init_value)), next(nullptr) {}
+     Node(T init_value){
+      item = init_value;
+      key = std::hash<T>()(init_value);
+      next = nullptr;
+    } 
 
     T item; 
     size_t key; 
     Node* next; 
-
-
   };
 
   Node* head; 

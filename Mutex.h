@@ -1,11 +1,12 @@
+#ifndef MUTEX_H
+#define MUTEX_H
+
 class Mutex
 {
   private:
     pthread_mutex_t mutex; 
-  
 
   public:    
-
     int init()
     {
       mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -23,3 +24,5 @@ class Mutex
         printf("problem with unlock coarse-grained\n");
     }
 };
+
+#endif
