@@ -14,7 +14,7 @@ int mode;
 
 void* writeTest(void* parameter)
 {
-	for (int i = 0; i < NUM_ELEMENTS; i++)
+	for (int i = 1; i <= NUM_ELEMENTS; i++)
 	{
 		if (mode == 0)
 			p_set1->add(i);
@@ -28,17 +28,25 @@ void* writeTest(void* parameter)
 void* readTest(void* parameter)
 {
 	int* acc = reinterpret_cast<int*>(parameter);
-	for(int i = 0; i < NUM_ELEMENTS; i++)
+	*acc = 0;
+	for(int i = 1; i <= NUM_ELEMENTS; i++)
 	{
 		if(mode == 0)
 		{
 			if (p_set1->contains(i))
+			{
 				++(*acc);
+				p_set1->remove(i);
+			}
+
 		}
 		else
 		{
 			if (p_set2->contains(i))
+			{
 				++(*acc);
+				p_set2->remove(i);
+			}
 		}
 	}
 	//std::cout << "acc1 = " << *acc1 << std::endl;
@@ -65,17 +73,19 @@ int manyWritersOneReader()
     if (pthread_create(&threadRead1, NULL, readTest, &test) != 0)
       std::cout << "problem with threads" <<std::endl;
 	pthread_join(threadRead1, NULL);
+
+	
     delete p_set1;
     delete p_set2;
     return test;
 }
 
-int oneWriterManyReaders()
+int manyWritersManyReaders()
 {
 	p_set1 = new CGSSet<int>();
 	p_set2 = new LSSet<int>();
-	int test1 = 0, test2 =0, test3 = 0;
-	pthread_t threadRead1, threadRead2, threadRead3, threadWrite1,  threadWrite2, threadWrite3;
+	int test1 = 0, test2 =0, test3 = 0, test4 = 0;
+	pthread_t threadRead1, threadRead2, threadRead3, threadWrite1,  threadWrite2, threadWrite3, threadLast;
 
 	if (pthread_create(&threadWrite1, NULL, writeTest, NULL) != 0)
     	std::cout << "problem with threads" <<std::endl;
@@ -98,17 +108,22 @@ int oneWriterManyReaders()
     pthread_join(threadRead1, NULL);
     pthread_join(threadRead2, NULL);
     pthread_join(threadRead3, NULL);
+
+    if (pthread_create(&threadLast, NULL, readTest, &test4) != 0)
+    	std::cout << "problem with threads" <<std::endl;
+    pthread_join(threadLast, NULL);
+   
     delete p_set1;
     delete p_set2;
-    return test1 + test2 + test3;
+    return test1 + test2 + test3 + test4;
 }
 
-int manyWritersManyReaders()
+int oneWriterManyReaders()
 {
 	p_set1 = new CGSSet<int>();
 	p_set2 = new LSSet<int>();
-	int test1 = 0, test2 =0, test3 = 0;
-	pthread_t threadRead1, threadRead2, threadRead3, threadWrite1;
+	int test1 = 0, test2 =0, test3 = 0, test4;
+	pthread_t threadRead1, threadRead2, threadRead3, threadWrite1, threadLast;
 
 	if (pthread_create(&threadWrite1, NULL, writeTest, NULL) != 0)
     	std::cout << "problem with threads" <<std::endl;
@@ -125,9 +140,14 @@ int manyWritersManyReaders()
     pthread_join(threadRead1, NULL);
     pthread_join(threadRead2, NULL);
     pthread_join(threadRead3, NULL);
+    if (pthread_create(&threadLast, NULL, readTest, &test4) != 0)
+    	std::cout << "problem with threads" <<std::endl;
+    pthread_join(threadLast, NULL);
+
+    
     delete p_set1;
     delete p_set2;
-    return test1 + test2 + test3;
+    return test1 + test2 + test3 + test4;
 }
 
 int main()
@@ -143,13 +163,13 @@ int main()
     	std::cout << "Fault!" << std::endl;
 
     test2 = oneWriterManyReaders();
-    if (test2 == 3 * NUM_ELEMENTS)
+    if (test2 == NUM_ELEMENTS)
     	std::cout << "Success!" << std::endl;
     else
     	std::cout << "Fault!" << std::endl;
 
     test3 = manyWritersManyReaders();
-    if (test3 == 3 * NUM_ELEMENTS)
+    if (test3 == NUM_ELEMENTS)
     	std::cout << "Success!" << std::endl;
     else
     	std::cout << "Fault!" << std::endl;
@@ -167,13 +187,13 @@ int main()
     	std::cout << "Fault!" << std::endl;
 
     test2 = oneWriterManyReaders();
-    if (test2 == 3 * NUM_ELEMENTS)
+    if (test2 == NUM_ELEMENTS)
     	std::cout << "Success!" << std::endl;
     else
     	std::cout << "Fault!" << std::endl;
 
       test3 = manyWritersManyReaders();
-    if (test3 == 3 * NUM_ELEMENTS)
+    if (test3 == NUM_ELEMENTS)
     	std::cout << "Success!" << std::endl;
     else
     	std::cout << "Fault!" << std::endl;

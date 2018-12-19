@@ -131,8 +131,8 @@ public:
           return false;
         }
       }
-      prev->unlock();
-      curr->unlock();
+      prev->mutex.unlock();
+      curr->mutex.unlock();
     }
   }
 
