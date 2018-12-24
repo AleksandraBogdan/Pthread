@@ -46,7 +46,8 @@ public:
 
   ~LSSet()
   {
-    for (NodeLazySync *current = head, *next = nullptr; current != nullptr; current = next)
+    NodeLazySync *next = nullptr;
+    for (NodeLazySync *current = head ; current != nullptr; current = next)
     {
       next = current->next;
       delete current;
@@ -118,10 +119,11 @@ public:
         if (curr->key == key)
         {
           curr->marked = true;
-          prev->next = curr->next;
-          delete curr;
+         
           prev->mutex.unlock();
           curr->mutex.unlock();
+           prev->next = curr->next;
+          delete curr;
           return true;
         }
         else

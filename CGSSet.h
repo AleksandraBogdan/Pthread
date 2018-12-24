@@ -44,7 +44,8 @@ public:
 
   ~CGSSet()
   {
-    for (Node *current = head, *next = nullptr; current != nullptr; current = next)
+    Node *next = nullptr;
+    for (Node *current = head; current != nullptr; current = next)
     {
       next = current->next;
       delete current;
